@@ -46,6 +46,7 @@
 						{disabled}
 						{placeholder}
 						{hidden}
+						class="text-sm placeholder:text-sm"
 					/>
 					<Button
 						onclick={() => (passwordView = !passwordView)}
@@ -62,7 +63,14 @@
 					</Button>
 				</div>
 			{:else}
-				<Input {...props} bind:value {disabled} {placeholder} {hidden} />
+				<Input
+					{...props}
+					bind:value
+					{disabled}
+					{placeholder}
+					{hidden}
+					class="text-sm placeholder:text-sm"
+				/>
 			{/if}
 		{/snippet}
 	</Form.Control>

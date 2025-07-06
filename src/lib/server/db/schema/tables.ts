@@ -25,7 +25,8 @@ export const users = pgTable('users', {
 	name: text('name'),
 	dob: date('date_of_birth'),
 	roleId: char('role_id', { length: 1 }).references(() => userRoles.id),
-	createdAt: timestamp('created_at', { withTimezone: true }).defaultNow()
+	createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
+	boarded: boolean('boarded').default(false)
 });
 
 export const sessions = pgTable('sessions', {
