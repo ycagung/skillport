@@ -1,0 +1,1 @@
+ALTER TABLE "user_skills" DROP COLUMN "last_used";

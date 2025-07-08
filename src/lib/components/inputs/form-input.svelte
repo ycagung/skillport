@@ -4,7 +4,8 @@
 	import { Button } from '$lib/components/ui/button';
 	import { cn } from '$lib/utils';
 	import type { FsSuperForm } from 'formsnap';
-	import { Eye, EyeOff } from '@lucide/svelte';
+	import { BadgeCheckIcon, Eye, EyeOff } from '@lucide/svelte';
+	import { Badge } from '../ui/badge';
 
 	let {
 		form,
@@ -15,17 +16,25 @@
 		placeholder,
 		disabled = false,
 		hidden = false,
-		class: className
+		class: className,
+		inputClass,
+		showError = false,
+		verified = false,
+		onchange
 	}: {
 		form: FsSuperForm<Record<string, unknown>, any>;
-		value: any;
+		value?: any;
 		name: string;
-		type?: 'text' | 'password';
+		type?: 'text' | 'password' | 'number';
 		label?: string;
 		placeholder?: string;
 		disabled?: boolean;
 		hidden?: boolean;
 		class?: string;
+		inputClass?: string;
+		showError?: boolean;
+		verified?: boolean;
+		onchange?: () => void;
 	} = $props();
 
 	let passwordView = $state<boolean>(false);
@@ -35,7 +44,18 @@
 	<Form.Control>
 		{#snippet children({ props }: { props: any })}
 			{#if label}
-				<Form.Label>{label}</Form.Label>
+				<div class="relative flex gap-2">
+					<Form.Label {hidden}>{label}</Form.Label>
+					{#if verified}
+						<Badge
+							variant="secondary"
+							class="absolute -top-1 right-0 bg-sky-500 text-white dark:bg-sky-600"
+						>
+							<BadgeCheckIcon />
+							<p class="text-xs">Verified</p>
+						</Badge>
+					{/if}
+				</div>
 			{/if}
 			{#if type === 'password'}
 				<div class="flex gap-2">
@@ -46,7 +66,8 @@
 						{disabled}
 						{placeholder}
 						{hidden}
-						class="text-sm placeholder:text-sm"
+						{onchange}
+						class={cn(inputClass, 'mb-2 text-sm placeholder:text-sm')}
 					/>
 					<Button
 						onclick={() => (passwordView = !passwordView)}
@@ -66,13 +87,20 @@
 				<Input
 					{...props}
 					bind:value
+					{type}
 					{disabled}
 					{placeholder}
 					{hidden}
-					class="text-sm placeholder:text-sm"
+					{onchange}
+					class={cn(
+						inputClass,
+						'mb-2 appearance-none text-sm placeholder:text-sm'
+					)}
 				/>
 			{/if}
 		{/snippet}
 	</Form.Control>
-	<Form.FieldErrors />
+	{#if showError}
+		<Form.FieldErrors />
+	{/if}
 </Form.Field>

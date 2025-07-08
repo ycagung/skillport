@@ -68,7 +68,7 @@
 						{placeholder}
 					{/if}
 				</Select.Trigger>
-				<Select.Content>
+				<Select.Content class="max-h-[500px]">
 					{#each data as item}
 						{#if dataType === 'object'}
 							<Select.Item value={item[valueKey!]} label={item[labelKey!]} />

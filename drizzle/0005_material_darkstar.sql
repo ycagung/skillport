@@ -1,0 +1,1 @@
+ALTER TABLE "user_educations" ADD COLUMN "institution" text NOT NULL;

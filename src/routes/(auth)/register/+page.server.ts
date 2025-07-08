@@ -2,7 +2,7 @@ import { superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 import type { PageServerLoad, Actions } from './$types';
 import { registerSchema } from '$lib/schema';
-import { fail, redirect } from '@sveltejs/kit';
+import { fail } from '@sveltejs/kit';
 import { generateUserId, validatePassword } from '$lib/utils';
 import { hash } from '@node-rs/argon2';
 import { db } from '$lib/server/db';
@@ -37,16 +37,21 @@ export const actions = {
 			outputLen: 32,
 			parallelism: 1
 		});
+		console.log(userId, passwordHash);
 
 		try {
+			console.log('Inserting new user');
 			await db.insert(users).values({ id: userId, email, passwordHash, name, dob });
 
 			const sessionToken = generateSessionToken();
 			const session = await createSession(sessionToken, userId);
 			setSessionTokenCookie(event, sessionToken, session.expiresAt);
-		} catch {
+			console.log(sessionToken, session);
+		} catch (err) {
+			console.log(err);
 			return fail(500, { message: 'An error has occurred' });
 		}
-		return redirect(302, '/onboarding');
+
+		return { form };
 	}
 } satisfies Actions;

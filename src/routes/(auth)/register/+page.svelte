@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
 	import FormDatepicker from '$lib/components/inputs/form-datepicker.svelte';
 	import FormInput from '$lib/components/inputs/form-input.svelte';
 	import { Button } from '$lib/components/ui/button';
@@ -10,7 +11,8 @@
 	let { data } = $props();
 
 	const form = superForm(data.form, {
-		validators: zod4Client(registerSchema)
+		validators: zod4Client(registerSchema),
+		onResult: () => goto('/onboarding')
 	});
 
 	const { form: formData, enhance } = form;

@@ -21,7 +21,8 @@
 		name,
 		class: className,
 		label,
-		placeholder
+		placeholder,
+		hidden
 	}: {
 		form: FsSuperForm<Record<string, unknown>, any>;
 		value: any;
@@ -29,6 +30,7 @@
 		class?: string;
 		label?: string;
 		placeholder?: string;
+		hidden?: boolean;
 	} = $props();
 
 	const df = new DateFormatter('en-US', {
@@ -40,7 +42,7 @@
 	let open = $state<boolean>(false);
 </script>
 
-<Form.Field {form} {name} class={cn(className, '')}>
+<Form.Field {form} {name} class={cn(className, '', hidden && 'hidden')}>
 	<Form.Control>
 		{#snippet children({ props })}
 			{#if label}
@@ -55,7 +57,9 @@
 						!dateValue && 'text-muted-foreground'
 					)}
 				>
-					{dateValue ? df.format(dateValue.toDate(getLocalTimeZone())) : placeholder}
+					{dateValue
+						? df.format(dateValue.toDate(getLocalTimeZone()))
+						: placeholder}
 					<Calendar1 class="ml-auto size-4 opacity-50" />
 				</Popover.Trigger>
 				<Popover.Content class="w-auto p-0" side="top">

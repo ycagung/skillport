@@ -35,7 +35,7 @@
 				{disabled}
 				{placeholder}
 				{type}
-				class="resize-none"
+				class="resize-none text-sm placeholder:text-sm"
 				rows="4"
 			/>
 		{/snippet}

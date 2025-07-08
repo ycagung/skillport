@@ -15,6 +15,48 @@
       "when": 1751817576800,
       "tag": "0001_chubby_maginty",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1751879804967,
+      "tag": "0002_even_zarda",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1751896286047,
+      "tag": "0003_nifty_juggernaut",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1751896972569,
+      "tag": "0004_awesome_nehzno",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1751909752869,
+      "tag": "0005_material_darkstar",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1751912218223,
+      "tag": "0006_dark_wiccan",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1751958494965,
+      "tag": "0007_careful_nextwave",
+      "breakpoints": true
     }
   ]
 }

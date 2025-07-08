@@ -32,3 +32,13 @@ export function validateUsername(username: unknown): username is string {
 export function validatePassword(password: unknown): password is string {
 	return typeof password === 'string' && password.length >= 6 && password.length <= 255;
 }
+
+export function getRandomSixDigitNumber(): string {
+	let otp: string = '0000000';
+
+	while (otp === '0000000') {
+		otp = Math.floor(100000 + Math.random() * 900000).toString();
+	}
+
+	return otp;
+}

@@ -24,8 +24,11 @@ export const users = pgTable('users', {
 	passwordHash: text('password_hash').notNull(),
 	name: text('name'),
 	dob: date('date_of_birth'),
+	title: text('title'),
+	bio: text('bio'),
 	roleId: char('role_id', { length: 1 }).references(() => userRoles.id),
 	createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
+	verifiedEmail: boolean('verified_email').default(false),
 	boarded: boolean('boarded').default(false)
 });
 
@@ -40,8 +43,7 @@ export const sessions = pgTable('sessions', {
 export const skillsMaster = pgTable('skills_master', {
 	id: serial('id').primaryKey(),
 	title: text('title').notNull(),
-	description: text('description'),
-	level: integer('level')
+	description: text('description')
 });
 
 export const educationsMaster = pgTable('educations_master', {
@@ -59,8 +61,8 @@ export const userSkills = pgTable('user_skills', {
 	skillId: integer('skill_id')
 		.notNull()
 		.references(() => skillsMaster.id),
-	experienceYears: integer('experience_years'),
-	lastUsed: timestamp('last_used', { withTimezone: true })
+	level: integer('level').notNull(),
+	experienceYears: integer('experience_years')
 });
 
 export const userExperiences = pgTable('user_experiences', {
@@ -68,9 +70,9 @@ export const userExperiences = pgTable('user_experiences', {
 	userId: text('user_id')
 		.notNull()
 		.references(() => users.id),
-	position: text('position'),
-	company: text('company'),
-	startDate: date('start_date'),
+	position: text('position').notNull(),
+	company: text('company').notNull(),
+	startDate: date('start_date').notNull(),
 	endDate: date('end_date'),
 	description: text('description')
 });
@@ -83,6 +85,7 @@ export const userEducations = pgTable('user_educations', {
 	educationId: integer('education_id')
 		.notNull()
 		.references(() => educationsMaster.id),
+	institution: text('institution').notNull(),
 	major: text('major'),
 	startYear: integer('start_year'),
 	endYear: integer('end_year'),

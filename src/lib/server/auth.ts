@@ -3,9 +3,13 @@ import { eq } from 'drizzle-orm';
 import { sha256 } from '@oslojs/crypto/sha2';
 import { encodeBase64url, encodeHexLowerCase } from '@oslojs/encoding';
 import { db } from '$lib/server/db';
-import * as table from '$lib/server/db/schema/tables';
+import { sessions, users } from './db/schema/tables';
+import { ACCOUNT_AGE } from '$env/static/private';
 
 const DAY_IN_MS = 1000 * 60 * 60 * 24;
+const accountAge = parseInt(ACCOUNT_AGE);
+
+if (!accountAge) throw new Error('Provide ACCOUNT_AGE in number');
 
 export const sessionCookieName = 'auth-session';
 
@@ -17,24 +21,13 @@ export function generateSessionToken() {
 
 export async function createSession(token: string, userId: string) {
 	const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
-	// const session: typeof table.sessions = {
-	// 	id: sessionId,
-	// 	userId,
-	// 	expiresAt: new Date(Date.now() + DAY_IN_MS * 30)
-	// };
-	const [newSession] = await db
-		.insert(table.sessions)
-		.values({
-			id: sessionId,
-			userId,
-			expiresAt: new Date(Date.now() + DAY_IN_MS * 30)
-		})
-		.returning({
-			id: table.sessions.id,
-			userId: table.sessions.userId,
-			expiresAt: table.sessions.expiresAt
-		});
-	return newSession;
+	const session = {
+		id: sessionId,
+		userId,
+		expiresAt: new Date(Date.now() + DAY_IN_MS * accountAge)
+	};
+	await db.insert(sessions).values(session);
+	return session;
 }
 
 export async function validateSessionToken(token: string) {
@@ -42,12 +35,12 @@ export async function validateSessionToken(token: string) {
 	const [result] = await db
 		.select({
 			// Adjust user table here to tweak returned data
-			user: { id: table.users.id, email: table.users.email },
-			session: table.sessions
+			user: { id: users.id, email: users.email },
+			session: sessions
 		})
-		.from(table.sessions)
-		.innerJoin(table.users, eq(table.sessions.userId, table.users.id))
-		.where(eq(table.sessions.id, sessionId));
+		.from(sessions)
+		.innerJoin(users, eq(sessions.userId, users.id))
+		.where(eq(sessions.id, sessionId));
 
 	if (!result) {
 		return { session: null, user: null };
@@ -56,29 +49,36 @@ export async function validateSessionToken(token: string) {
 
 	const sessionExpired = Date.now() >= session.expiresAt.getTime();
 	if (sessionExpired) {
-		await db.delete(table.sessions).where(eq(table.sessions.id, session.id));
+		await db.delete(sessions).where(eq(sessions.id, session.id));
 		return { session: null, user: null };
 	}
 
-	const renewSession = Date.now() >= session.expiresAt.getTime() - DAY_IN_MS * 15;
+	const renewSession =
+		Date.now() >= session.expiresAt.getTime() - DAY_IN_MS * 15;
 	if (renewSession) {
-		session.expiresAt = new Date(Date.now() + DAY_IN_MS * 30);
+		session.expiresAt = new Date(Date.now() + DAY_IN_MS * accountAge);
 		await db
-			.update(table.sessions)
+			.update(sessions)
 			.set({ expiresAt: session.expiresAt })
-			.where(eq(table.sessions.id, session.id));
+			.where(eq(sessions.id, session.id));
 	}
 
 	return { session, user };
 }
 
-export type SessionValidationResult = Awaited<ReturnType<typeof validateSessionToken>>;
+export type SessionValidationResult = Awaited<
+	ReturnType<typeof validateSessionToken>
+>;
 
 export async function invalidateSession(sessionId: string) {
-	await db.delete(table.sessions).where(eq(table.sessions.id, sessionId));
+	await db.delete(sessions).where(eq(sessions.id, sessionId));
 }
 
-export function setSessionTokenCookie(event: RequestEvent, token: string, expiresAt: Date) {
+export function setSessionTokenCookie(
+	event: RequestEvent,
+	token: string,
+	expiresAt: Date
+) {
 	event.cookies.set(sessionCookieName, token, {
 		expires: expiresAt,
 		path: '/'
