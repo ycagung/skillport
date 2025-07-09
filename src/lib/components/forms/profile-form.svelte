@@ -10,29 +10,25 @@
 	import FormInput from '../inputs/form-input.svelte';
 	import FormDatepicker from '../inputs/form-datepicker.svelte';
 	import FormTextarea from '../inputs/form-textarea.svelte';
-	import { BadgeCheck, Save } from '@lucide/svelte';
+	import { Pen, Save } from '@lucide/svelte';
 	import { loading } from '$lib/stores';
-	import type { CarouselAPI } from '../ui/carousel/context';
 	import { toast } from 'svelte-sonner';
+	import { Button } from '../ui/button';
 
 	let {
-		data,
-		embla,
-		completed = $bindable()
+		data
 	}: {
 		data: SuperValidated<Infer<typeof profileSchema>>;
-		embla: CarouselAPI | undefined;
-		completed: boolean;
 	} = $props();
 
 	const form = superForm(data, {
 		validators: zod4Client(profileSchema),
-		invalidateAll: false,
+		invalidateAll: 'force',
 		onUpdate: ({ form, result }) => {
 			const { status } = result.data;
 			if (status === 200) {
 				toast.success(`Data ${form.data.name} tersimpan`);
-				completed = true;
+				editing = false;
 			} else {
 				toast.error('Gagal menyimpan data pengguna');
 			}
@@ -40,6 +36,8 @@
 	});
 
 	const { form: formData, enhance, delayed } = form;
+
+	let editing = $state<boolean>(false);
 
 	$effect(() => {
 		if ($delayed) {
@@ -50,18 +48,21 @@
 	});
 </script>
 
-<form action="?/onboardingUser" use:enhance method="POST">
+<form action="?/profileUser" use:enhance method="POST">
 	<div class="flex items-center justify-between">
 		<h1
 			class="flex items-center gap-2 text-lg font-bold tracking-widest uppercase lg:text-xl"
 		>
 			Data Pengguna 👤
-			{#if completed}
-				<BadgeCheck class="size-5 text-green-400 dark:text-green-600" />
-			{/if}
 		</h1>
 
-		<Form.Button><Save />Simpan</Form.Button>
+		{#if editing}
+			<Form.Button><Save />Simpan</Form.Button>
+		{:else}
+			<Button onclick={() => (editing = true)} variant="outline"
+				><Pen />Ubah</Button
+			>
+		{/if}
 	</div>
 
 	<p class="text-muted-foreground mt-2 max-w-[350px] text-sm">
@@ -73,8 +74,8 @@
 		data <span></span>
 	</p>
 
+	<FormInput {form} name="id" bind:value={$formData.id} hidden />
 	<div class="my-8 grid grid-cols-1 gap-4 lg:grid-cols-4">
-		<FormInput {form} name="id" bind:value={$formData.id} hidden />
 		<FormInput
 			{form}
 			name="email"
@@ -82,7 +83,16 @@
 			disabled
 			label="Email"
 			verified={$formData.verifiedEmail || false}
-			class="lg:col-span-4"
+			class="lg:col-span-2"
+		/>
+		<FormInput
+			{form}
+			name="phoneNumber"
+			bind:value={$formData.phoneNumber}
+			label="PhoneNumber"
+			class="lg:col-span-2"
+			placeholder="08123456..."
+			disabled={!editing}
 		/>
 		<FormInput
 			{form}
@@ -90,6 +100,7 @@
 			bind:value={$formData.name}
 			label="Nama"
 			class="lg:col-span-4"
+			disabled={!editing}
 		/>
 		<FormDatepicker
 			{form}
@@ -97,15 +108,17 @@
 			bind:value={$formData.dob}
 			placeholder="Tanggal Lahir"
 			label="Tanggal Lahir"
-			class="lg:col-span-4"
+			class="lg:col-span-2"
+			disabled={!editing}
 		/>
 		<FormInput
 			{form}
 			name="title"
 			bind:value={$formData.title}
 			label="Pekerjaan"
-			class="lg:col-span-4"
+			class="lg:col-span-2"
 			placeholder="Full Stack Developer"
+			disabled={!editing}
 		/>
 		<FormTextarea
 			{form}
@@ -114,6 +127,7 @@
 			label="Bio"
 			class="lg:col-span-4"
 			placeholder="Ceritakan sedikit tentangmu ✌️"
+			disabled={!editing}
 		/>
 	</div>
 </form>

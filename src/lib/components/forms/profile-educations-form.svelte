@@ -10,7 +10,7 @@
 	import * as Card from '$lib/components/ui/card';
 	import FormInput from '../inputs/form-input.svelte';
 	import FormTextarea from '../inputs/form-textarea.svelte';
-	import { BadgeCheck, Plus, Save } from '@lucide/svelte';
+	import { BadgeCheck, Pen, Plus, Save } from '@lucide/svelte';
 	import { Separator } from '../ui/separator';
 	import { Button } from '../ui/button';
 	import FormSelect from '../inputs/form-select.svelte';
@@ -23,9 +23,7 @@
 
 	let {
 		data,
-		educations,
-		embla,
-		completed = $bindable()
+		educations
 	}: {
 		data: SuperValidated<Infer<typeof educationsSchema>>;
 		educations: {
@@ -33,19 +31,17 @@
 			title: string;
 			major: string | null;
 		}[];
-		embla: CarouselAPI | undefined;
-		completed: boolean;
 	} = $props();
 
 	const form = superForm(data, {
 		validators: zod4Client(educationsSchema),
 		dataType: 'json',
-		invalidateAll: false,
+		invalidateAll: 'force',
 		onUpdate: ({ result }) => {
 			const { status } = result.data;
 			if (status === 200) {
 				toast.success(`Pendidikan tersimpan`);
-				completed = true;
+				editing = false;
 			} else {
 				toast.error('Gagal menyimpan data');
 			}
@@ -54,6 +50,7 @@
 
 	const { form: formData, enhance, delayed } = form;
 
+	let editing = $state<boolean>(false);
 	let currentlyStudying = $state<boolean[]>(
 		$formData.educations.map((d) => false)
 	);
@@ -77,18 +74,21 @@
 	// });
 </script>
 
-<form action="?/onboardingEducations" use:enhance method="POST">
+<form action="?/profileEducations" use:enhance method="POST">
 	<div class="flex items-center justify-between">
 		<h1
 			class="flex items-center gap-2 text-lg font-bold tracking-widest uppercase lg:text-xl"
 		>
 			Pendidikan 🎓
-			{#if completed}
-				<BadgeCheck class="size-5 text-green-400 dark:text-green-600" />
-			{/if}
 		</h1>
 
-		<Form.Button><Save />Simpan</Form.Button>
+		{#if editing}
+			<Form.Button><Save />Simpan</Form.Button>
+		{:else}
+			<Button onclick={() => (editing = true)} variant="outline"
+				><Pen />Ubah</Button
+			>
+		{/if}
 	</div>
 
 	<p class="text-muted-foreground mt-2 max-w-[350px] text-sm">
@@ -127,6 +127,7 @@
 							}}
 							label="Jenjang"
 							placeholder="S1 Teknik ..."
+							disabled={!editing}
 						/>
 						<FormInput
 							{form}
@@ -135,6 +136,7 @@
 							class="lg:col-span-2"
 							label="Jurusan"
 							placeholder="Teknik ..."
+							disabled={!editing}
 						/>
 						<FormInput
 							{form}
@@ -143,6 +145,7 @@
 							class="lg:col-span-4"
 							label="Nama Institusi"
 							placeholder="Universitas ..."
+							disabled={!editing}
 						/>
 						<FormInput
 							{form}
@@ -152,7 +155,9 @@
 							class="lg:col-span-2"
 							label="Tahun Mulai"
 							placeholder="20..."
+							disabled={!editing}
 						/>
+
 						<div
 							class={cn(
 								'mb-2 lg:col-span-2',
@@ -169,19 +174,22 @@
 								label="Tahun Lulus"
 								placeholder="20..."
 								hidden={currentlyStudying[i]}
+								disabled={!editing}
 							/>
-							<div class="flex gap-2">
-								<Checkbox
-									bind:checked={currentlyStudying[i]}
-									onCheckedChange={(v) => {
-										if (v) $formData.educations[i].endYear = null;
-									}}
-									id={`currently-studying-${i}`}
-								/>
-								<Label for={`currently-studying-${i}`}
-									>Sedang belajar di sini</Label
-								>
-							</div>
+							{#if editing}
+								<div class="flex gap-2">
+									<Checkbox
+										bind:checked={currentlyStudying[i]}
+										onCheckedChange={(v) => {
+											if (v) $formData.educations[i].endYear = null;
+										}}
+										id={`currently-studying-${i}`}
+									/>
+									<Label for={`currently-studying-${i}`}
+										>Sedang belajar di sini</Label
+									>
+								</div>
+							{/if}
 						</div>
 						<FormTextarea
 							{form}
@@ -190,6 +198,7 @@
 							label="Keterangan"
 							class="lg:col-span-4"
 							placeholder="Adakah yang berkesan di jenjang ini? 🏆"
+							disabled={!editing}
 						/>
 						<Button
 							variant="destructive"
@@ -198,6 +207,12 @@
 								$formData.educations = $formData.educations.filter(
 									(_, index) => index !== i
 								);
+								currentlyStudying = currentlyStudying.filter(
+									(_, index) => index !== i
+								);
+								if (edu.id) {
+									$formData.deleted = [...$formData.deleted, edu.id];
+								}
 							}}>Hapus</Button
 						>
 					</div>
@@ -208,26 +223,28 @@
 			<div class="w-full">
 				<Separator />
 			</div>
-			<Button
-				class="rounded-full"
-				size="icon"
-				onclick={() => {
-					$formData.educations = [
-						// @ts-ignore
-						...$formData.educations,
-						{
-							educationId: 0,
-							major: null,
-							institution: '',
+			{#if editing}
+				<Button
+					class="rounded-full"
+					size="icon"
+					onclick={() => {
+						$formData.educations = [
 							// @ts-ignore
-							startYear: null,
-							endYear: null,
-							notes: null
-						}
-					];
-					currentlyStudying = [...currentlyStudying, false];
-				}}><Plus /></Button
-			>
+							...$formData.educations,
+							{
+								educationId: 0,
+								major: null,
+								institution: '',
+								// @ts-ignore
+								startYear: null,
+								endYear: null,
+								notes: null
+							}
+						];
+						currentlyStudying = [...currentlyStudying, false];
+					}}><Plus /></Button
+				>
+			{/if}
 			<div class="w-full">
 				<Separator />
 			</div>

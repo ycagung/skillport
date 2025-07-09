@@ -4,9 +4,7 @@
 	import NavSecondary from './nav-secondary.svelte';
 	import NavUser from './nav-user.svelte';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
-	import CommandIcon from '@lucide/svelte/icons/command';
 	import type { ComponentProps } from 'svelte';
-	import { string } from 'zod/v4';
 	import {
 		BriefcaseBusiness,
 		ChartPieIcon,
@@ -32,61 +30,57 @@
 
 	const data = {
 		navMain: [
-			{
-				title: 'Screening',
-				url: '#',
-				icon: SquareTerminalIcon,
-				isActive: true,
-				items: [
-					{
-						title: 'Tes',
-						url: '#'
-					},
-					{
-						title: 'Hasil',
-						url: '#'
-					}
-				]
-			},
-			{
-				title: 'Pekerjaan',
-				url: '#',
-				icon: BriefcaseBusiness,
-				items: [
-					{
-						title: 'Lowongan',
-						url: '#'
-					},
-					{
-						title: 'Pekerjaan saya',
-						url: '#'
-					},
-					{
-						title: 'Laporan',
-						url: '#'
-					}
-				]
-			},
+			// {
+			// 	title: 'Screening',
+			// 	url: '#',
+			// 	icon: SquareTerminalIcon,
+			// 	isActive: true,
+			// 	items: [
+			// 		{
+			// 			title: 'Tes',
+			// 			url: '#'
+			// 		},
+			// 		{
+			// 			title: 'Hasil',
+			// 			url: '#'
+			// 		}
+			// 	]
+			// },
+			// {
+			// 	title: 'Pekerjaan',
+			// 	url: '#',
+			// 	icon: BriefcaseBusiness,
+			// 	items: [
+			// 		{
+			// 			title: 'Lowongan',
+			// 			url: '#'
+			// 		},
+			// 		{
+			// 			title: 'Pekerjaan saya',
+			// 			url: '#'
+			// 		},
+			// 		{
+			// 			title: 'Laporan',
+			// 			url: '#'
+			// 		}
+			// 	]
+			// },
 			{
 				title: 'Profil Saya',
-				url: '#',
+				url: '/home/profile',
 				icon: User,
 				items: [
 					{
-						title: 'Data diri',
-						url: '#'
-					},
-					{
 						title: 'Pendidikan',
-						url: '#'
+						url: '/home/profile#educations'
 					},
 					{
 						title: 'Pengalaman',
-						url: '#'
+						url: '/home/profile#experiences'
 					},
 					{
 						title: 'Skill',
-						url: '#'
+						url: '/home/profile#skills'
 					}
 				]
 			}
@@ -104,21 +98,11 @@
 			}
 		],
 		projects: [
-			{
-				name: 'Bot WA - PT Dummy A',
-				url: '#',
-				icon: FrameIcon
-			},
-			{
-				name: 'Figma Slicing - PT Dummy B',
-				url: '#',
-				icon: ChartPieIcon
-			},
-			{
-				name: '[Collab] Big App 2025',
-				url: '#',
-				icon: MapIcon
-			}
+			// {
+			// 	name: 'Bot WA - PT Dummy A',
+			// 	url: '#',
+			// 	icon: FrameIcon
+			// },
 		]
 	};
 </script>

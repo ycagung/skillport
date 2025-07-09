@@ -22,7 +22,8 @@
 		class: className,
 		label,
 		placeholder,
-		hidden
+		hidden,
+		disabled = false
 	}: {
 		form: FsSuperForm<Record<string, unknown>, any>;
 		value: any;
@@ -31,6 +32,7 @@
 		label?: string;
 		placeholder?: string;
 		hidden?: boolean;
+		disabled?: boolean;
 	} = $props();
 
 	const df = new DateFormatter('en-US', {
@@ -56,6 +58,7 @@
 						'w-full justify-start px-6 text-left text-sm font-normal',
 						!dateValue && 'text-muted-foreground'
 					)}
+					{disabled}
 				>
 					{dateValue
 						? df.format(dateValue.toDate(getLocalTimeZone()))

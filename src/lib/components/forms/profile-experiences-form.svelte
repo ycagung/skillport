@@ -11,7 +11,7 @@
 	import FormInput from '../inputs/form-input.svelte';
 	import FormDatepicker from '../inputs/form-datepicker.svelte';
 	import FormTextarea from '../inputs/form-textarea.svelte';
-	import { BadgeCheck, Plus, Save } from '@lucide/svelte';
+	import { BadgeCheck, Pen, Plus, Save } from '@lucide/svelte';
 	import { Separator } from '../ui/separator';
 	import { Button } from '../ui/button';
 	import { loading } from '$lib/stores';
@@ -22,25 +22,21 @@
 	import { cn } from '$lib/utils';
 
 	let {
-		data,
-		embla,
-		completed = $bindable()
+		data
 	}: {
 		data: SuperValidated<Infer<typeof experiencesSchema>>;
-		embla: CarouselAPI | undefined;
-		completed: boolean;
 	} = $props();
 
 	const form = superForm(data, {
 		validators: zod4Client(experiencesSchema),
 		dataType: 'json',
-		invalidateAll: false,
+		invalidateAll: 'force',
 		onUpdate: ({ form, result }) => {
 			console.log(form.data);
 			const { status, data } = result.data;
 			if (status === 200) {
 				toast.success(`Pengalaman kerja tersimpan`);
-				completed = true;
+				editing = false;
 			} else {
 				toast.error('Gagal menyimpan data');
 			}
@@ -49,7 +45,10 @@
 
 	const { form: formData, enhance, delayed } = form;
 
-	let currentlyWorking = $state<boolean[]>([]);
+	let editing = $state<boolean>(false);
+	let currentlyWorking = $state<boolean[]>(
+		$formData.experiences.map((d) => false)
+	);
 
 	$effect(() => {
 		if ($delayed) {
@@ -58,20 +57,25 @@
 			loading.end();
 		}
 	});
+
+	$inspect(currentlyWorking);
 </script>
 
-<form action="?/onboardingExperiences" use:enhance method="POST">
+<form action="?/profileExperiences" use:enhance method="POST">
 	<div class="flex items-center justify-between">
 		<h1
 			class="flex items-center gap-2 text-lg font-bold tracking-widest uppercase lg:text-xl"
 		>
 			Pengalaman Kerja 🏢
-			{#if completed}
-				<BadgeCheck class="size-5 text-green-400 dark:text-green-600" />
-			{/if}
 		</h1>
 
-		<Form.Button><Save />Simpan</Form.Button>
+		{#if editing}
+			<Form.Button><Save />Simpan</Form.Button>
+		{:else}
+			<Button onclick={() => (editing = true)} variant="outline"
+				><Pen />Ubah</Button
+			>
+		{/if}
 	</div>
 
 	<p class="text-muted-foreground mt-2 max-w-[350px] text-sm">
@@ -99,6 +103,7 @@
 							class="lg:col-span-2"
 							label="Nama Perusahaan"
 							placeholder="PT/CV ..."
+							disabled={!editing}
 						/>
 						<FormInput
 							{form}
@@ -107,6 +112,7 @@
 							class="lg:col-span-2"
 							label="Jabatan"
 							placeholder="Staff Back End ..."
+							disabled={!editing}
 						/>
 						<FormDatepicker
 							{form}
@@ -114,6 +120,7 @@
 							bind:value={$formData.experiences[i].startDate}
 							label="Tanggal Bergabung"
 							class="lg:col-span-2"
+							disabled={!editing}
 						/>
 						<div
 							class={cn(
@@ -129,8 +136,9 @@
 								label="Tanggal Keluar"
 								class="lg:col-span-2"
 								hidden={currentlyWorking[i]}
+								disabled={!editing}
 							/>
-							{#if currentlyWorking[i]}
+							{#if editing}
 								<div class="flex gap-2">
 									<Checkbox
 										bind:checked={currentlyWorking[i]}
@@ -152,6 +160,7 @@
 							label="Keterangan"
 							class="lg:col-span-4"
 							placeholder="Adakah yang berkesan di perusahaan ini? 🏆"
+							disabled={!editing}
 						/>
 						<Button
 							variant="destructive"
@@ -163,6 +172,9 @@
 								currentlyWorking = currentlyWorking.filter(
 									(_, index) => index !== i
 								);
+								if (exp.id) {
+									$formData.deleted = [...$formData.deleted, exp.id];
+								}
 							}}>Hapus</Button
 						>
 					</div>
@@ -173,23 +185,25 @@
 			<div class="w-full">
 				<Separator />
 			</div>
-			<Button
-				class="rounded-full"
-				size="icon"
-				onclick={() => {
-					$formData.experiences = [
-						...$formData.experiences,
-						{
-							company: '',
-							position: '',
-							startDate: '',
-							endDate: null,
-							description: null
-						}
-					];
-					currentlyWorking = [...currentlyWorking, false];
-				}}><Plus /></Button
-			>
+			{#if editing}
+				<Button
+					class="rounded-full"
+					size="icon"
+					onclick={() => {
+						$formData.experiences = [
+							...$formData.experiences,
+							{
+								company: '',
+								position: '',
+								startDate: '',
+								endDate: null,
+								description: null
+							}
+						];
+						currentlyWorking = [...currentlyWorking, false];
+					}}><Plus /></Button
+				>
+			{/if}
 			<div class="w-full">
 				<Separator />
 			</div>

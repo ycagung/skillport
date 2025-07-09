@@ -27,6 +27,7 @@ export const load = (async ({ locals }) => {
 			dob: true,
 			bio: true,
 			title: true,
+			phoneNumber: true,
 			verifiedEmail: true
 		},
 		with: {
@@ -70,16 +71,16 @@ export const load = (async ({ locals }) => {
 			columns: { id: true, title: true, major: true }
 		}),
 		user,
-		onboardingUserForm: await superValidate(user, zod4(profileSchema)),
-		onboardingEducationsForm: await superValidate(
+		profileForm: await superValidate(user, zod4(profileSchema)),
+		profileEducationsForm: await superValidate(
 			{ userId: locals.user!.id, educations: [...user!.educations] },
 			zod4(educationsSchema)
 		),
-		onboardingExperiencesForm: await superValidate(
+		profileExperiencesForm: await superValidate(
 			{ userId: locals.user!.id, experiences: [...user!.experiences] },
 			zod4(experiencesSchema)
 		),
-		onboardingSkillsForm: await superValidate(
+		profileSkillsForm: await superValidate(
 			{ userId: locals.user!.id, skills: [...user!.skills] },
 			zod4(skillsSchema)
 		)
@@ -87,7 +88,7 @@ export const load = (async ({ locals }) => {
 }) satisfies PageServerLoad;
 
 export const actions = {
-	onboardingUser: async ({ request }) => {
+	profileUser: async ({ request }) => {
 		const form = await superValidate(request, zod4(profileSchema));
 
 		if (!form.valid) return fail(400, { form });
@@ -108,21 +109,28 @@ export const actions = {
 			return message(form, 'Failed to update user data');
 		}
 	},
-	onboardingEducations: async ({ request }) => {
+	profileEducations: async ({ request }) => {
 		const form = await superValidate(request, zod4(educationsSchema));
 
 		if (!form.valid) return fail(400, { form });
 
 		console.log(form.data);
 
-		const { userId, educations } = form.data;
+		const { userId, educations, deleted } = form.data;
 
 		try {
 			for await (const edu of educations) {
-				if (!edu.id) {
-					const { educationId, major, institution, startYear, endYear, notes } =
-						edu;
+				const {
+					id,
+					educationId,
+					major,
+					institution,
+					startYear,
+					endYear,
+					notes
+				} = edu;
 
+				if (!id) {
 					const [newEdu] = await db
 						.insert(userEducations)
 						.values({
@@ -137,6 +145,24 @@ export const actions = {
 						.returning({ institution: userEducations.institution });
 
 					console.log(`Inserted ${newEdu.institution}`);
+				} else {
+					await db
+						.update(userEducations)
+						.set({
+							educationId,
+							major,
+							institution,
+							startYear,
+							endYear,
+							notes
+						})
+						.where(eq(userEducations.id, id));
+				}
+			}
+
+			if (deleted.length > 0) {
+				for await (const id of deleted) {
+					await db.delete(userEducations).where(eq(userEducations.id, id));
 				}
 			}
 
@@ -146,20 +172,20 @@ export const actions = {
 			return message(form, 'Failed to insert educations');
 		}
 	},
-	onboardingExperiences: async ({ request }) => {
+	profileExperiences: async ({ request }) => {
 		const form = await superValidate(request, zod4(experiencesSchema));
 
 		if (!form.valid) return fail(400, { form });
 
 		console.log(form.data);
 
-		const { userId, experiences } = form.data;
+		const { userId, experiences, deleted } = form.data;
 
 		try {
 			for await (const exp of experiences) {
-				if (!exp.id) {
-					const { position, company, startDate, endDate, description } = exp;
+				const { id, position, company, startDate, endDate, description } = exp;
 
+				if (!id) {
 					const [newExp] = await db
 						.insert(userExperiences)
 						.values({
@@ -173,6 +199,23 @@ export const actions = {
 						.returning({ company: userExperiences.company });
 
 					console.log(`Inserted ${newExp.company}`);
+				} else {
+					await db
+						.update(userExperiences)
+						.set({
+							position,
+							company,
+							startDate,
+							endDate,
+							description
+						})
+						.where(eq(userExperiences.id, id));
+				}
+			}
+
+			if (deleted.length > 0) {
+				for await (const id of deleted) {
+					await db.delete(userExperiences).where(eq(userExperiences.id, id));
 				}
 			}
 
@@ -182,27 +225,36 @@ export const actions = {
 			return message(form, 'Failed to insert experiences');
 		}
 	},
-	onboardingSkills: async ({ request }) => {
+	profileSkills: async ({ request }) => {
 		const form = await superValidate(request, zod4(skillsSchema));
 
 		if (!form.valid) return fail(400, { form });
 
 		console.log(form.data);
 
-		const { userId, skills } = form.data;
+		const { userId, skills, deleted } = form.data;
 
 		try {
 			for await (const skl of skills) {
-				if (!skl.id) {
-					const { skillId, level, experienceYears } = skl;
+				const { id, skillId, level, experienceYears } = skl;
 
+				if (!id) {
 					await db
 						.insert(userSkills)
 						.values({ userId, skillId, level, experienceYears });
+				} else {
+					await db
+						.update(userSkills)
+						.set({ skillId, level, experienceYears })
+						.where(eq(userSkills.id, id));
 				}
 			}
 
-			await db.update(users).set({ boarded: true }).where(eq(users.id, userId));
+			if (deleted.length > 0) {
+				for await (const id of deleted) {
+					await db.delete(userSkills).where(eq(userSkills.id, id));
+				}
+			}
 
 			return { form, status: 200, data: form.data };
 		} catch (error) {

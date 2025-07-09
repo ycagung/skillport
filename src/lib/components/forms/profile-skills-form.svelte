@@ -21,26 +21,20 @@
 
 	let {
 		data,
-		skills,
-		embla,
-		completed = $bindable()
+		skills
 	}: {
 		data: SuperValidated<Infer<typeof skillsSchema>>;
 		skills: { id: number; title: string }[];
-		embla: CarouselAPI | undefined;
-		completed: boolean;
 	} = $props();
 
 	const form = superForm(data, {
 		validators: zod4Client(skillsSchema),
 		dataType: 'json',
-		invalidateAll: false,
+		invalidateAll: 'force',
 		onUpdate: ({ result }) => {
 			const { status } = result.data;
 			if (status === 200) {
 				toast.success(`Skill tersimpan`);
-				completed = true;
-				goto('/');
 			} else {
 				toast.error('Gagal menyimpan data');
 			}
@@ -64,15 +58,12 @@
 	// });
 </script>
 
-<form action="?/onboardingSkills" use:enhance method="POST">
+<form action="?/profileSkills" use:enhance method="POST">
 	<div class="flex items-center justify-between">
 		<h1
 			class="flex items-center gap-2 text-lg font-bold tracking-widest uppercase lg:text-xl"
 		>
 			Skill 🔥
-			{#if completed}
-				<BadgeCheck class="size-5 text-green-400 dark:text-green-600" />
-			{/if}
 		</h1>
 
 		<Form.Button><Save />Simpan</Form.Button>
@@ -141,6 +132,10 @@
 								$formData.skills = $formData.skills.filter(
 									(_, index) => index !== i
 								);
+								if (skl.id) {
+									console.log(skl.id);
+									$formData.deleted = [...$formData.deleted, skl.id];
+								}
 							}}>Hapus</Button
 						>
 					</div>
