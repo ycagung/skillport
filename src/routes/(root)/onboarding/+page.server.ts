@@ -1,5 +1,5 @@
 import { db } from '$lib/server/db';
-import { fail, redirect } from '@sveltejs/kit';
+import { fail } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
 import { message, superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
@@ -18,14 +18,6 @@ import {
 import { eq } from 'drizzle-orm';
 
 export const load = (async ({ locals }) => {
-	const verifiedEmail = (
-		await db.query.users.findFirst({
-			where: (users, { eq }) => eq(users.id, locals.user!.id),
-			columns: { verifiedEmail: true }
-		})
-	)?.verifiedEmail;
-	if (!verifiedEmail) redirect(302, '/onboarding/email-verification');
-
 	const user = await db.query.users.findFirst({
 		where: (users, { eq }) => eq(users.id, locals.user!.id),
 		columns: {

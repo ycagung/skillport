@@ -29,7 +29,9 @@ export const users = pgTable('users', {
 	roleId: char('role_id', { length: 1 }).references(() => userRoles.id),
 	createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
 	verifiedEmail: boolean('verified_email').default(false),
-	boarded: boolean('boarded').default(false)
+	boarded: boolean('boarded').default(false),
+	avatar: text('avatar'),
+	phoneNumber: text('phoneNumber')
 });
 
 export const sessions = pgTable('sessions', {

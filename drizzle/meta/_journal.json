@@ -57,6 +57,13 @@
       "when": 1751958494965,
       "tag": "0007_careful_nextwave",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1752044938990,
+      "tag": "0008_chubby_the_renegades",
+      "breakpoints": true
     }
   ]
 }

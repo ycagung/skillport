@@ -4,8 +4,8 @@
 	console.log('Welcome Home');
 </script>
 
-<div class="flex h-screen w-screen items-center justify-center p-8">
-	<div class="flex flex-col items-center gap-4">
+<div class="flex h-full w-full items-center justify-center p-8">
+	<div class="flex max-w-[600px] flex-col items-center gap-4">
 		<Hammer class="size-64 animate-bounce" />
 		<p class="text-center text-2xl font-bold">
 			Terima kasih sudah melalui tahapan <i>screening</i> 👍

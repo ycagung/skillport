@@ -12,7 +12,7 @@
 
 	const form = superForm(data.form, {
 		validators: zod4Client(registerSchema),
-		onResult: () => goto('/onboarding')
+		onResult: () => goto('/onboarding/email-verification')
 	});
 
 	const { form: formData, enhance } = form;
@@ -28,7 +28,12 @@
 			<SuperDebug data={$formData} />
 		</div> -->
 		<form method="POST" use:enhance class="space-y-2">
-			<FormInput {form} name="email" bind:value={$formData.email} placeholder="Email" />
+			<FormInput
+				{form}
+				name="email"
+				bind:value={$formData.email}
+				placeholder="Email"
+			/>
 			<FormInput
 				{form}
 				name="password"
@@ -36,11 +41,25 @@
 				type="password"
 				placeholder="Kata sandi"
 			/>
-			<FormInput {form} name="name" bind:value={$formData.name} placeholder="Nama lengkap" />
-			<FormDatepicker {form} name="dob" bind:value={$formData.dob} placeholder="Tanggal Lahir" />
+			<FormInput
+				{form}
+				name="name"
+				bind:value={$formData.name}
+				placeholder="Nama lengkap"
+			/>
+			<FormDatepicker
+				{form}
+				name="dob"
+				bind:value={$formData.dob}
+				placeholder="Tanggal Lahir"
+			/>
 			<Form.Button type="submit" class="mt-4 w-full">Daftar</Form.Button>
 			<p class="text-center text-sm">
-				Sudah punya akun? <Button variant="link" href="/login" class="px-0 font-bold">Masuk</Button>
+				Sudah punya akun? <Button
+					variant="link"
+					href="/login"
+					class="px-0 font-bold">Masuk</Button
+				>
 			</p>
 		</form>
 	</div>

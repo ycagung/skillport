@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import FormInput from '$lib/components/inputs/form-input.svelte';
+	import { Button } from '$lib/components/ui/button';
 	import * as Card from '$lib/components/ui/card';
 	import * as Form from '$lib/components/ui/form';
 	import * as InputOTP from '$lib/components/ui/input-otp';
@@ -56,7 +57,7 @@
 	});
 </script>
 
-<div class="flex h-screen w-screen items-center justify-center">
+<div class="flex h-screen w-screen flex-col items-center justify-center gap-4">
 	<Card.Root class="max-w-[80vw] min-w-[300px]">
 		<Card.Content class="flex flex-col items-center gap-4 lg:flex-row">
 			<ShieldQuestion class="size-48 text-sky-300 dark:text-sky-700" />
@@ -147,4 +148,11 @@
 			</div>
 		</Card.Content>
 	</Card.Root>
+	<p class="text-muted-foreground w-[300px] text-center text-sm">
+		Atau <Button
+			variant="link"
+			href="/onboarding"
+			class="h-fit px-0 py-0 font-bold">lewati</Button
+		> untuk langsung melanjutkan ke halaman Onboarding
+	</p>
 </div>
