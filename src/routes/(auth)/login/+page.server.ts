@@ -2,11 +2,15 @@ import { superValidate } from 'sveltekit-superforms';
 import type { PageServerLoad, Actions } from './$types';
 import { zod4 } from 'sveltekit-superforms/adapters';
 import { loginSchema } from '$lib/schema';
-import { fail, redirect } from '@sveltejs/kit';
+import { fail } from '@sveltejs/kit';
 import { validatePassword } from '$lib/utils';
 import { db } from '$lib/server/db';
 import { verify } from '@node-rs/argon2';
-import { createSession, generateSessionToken, setSessionTokenCookie } from '$lib/server/auth';
+import {
+	createSession,
+	generateSessionToken,
+	setSessionTokenCookie
+} from '$lib/server/auth';
 
 export const load = (async () => {
 	return {
@@ -24,7 +28,9 @@ export const actions = {
 		const { email, password } = form.data;
 
 		if (!validatePassword(password)) {
-			return fail(400, { message: 'Invalid password (min 6, max 255 characters)' });
+			return fail(400, {
+				message: 'Invalid password (min 6, max 255 characters)'
+			});
 		}
 
 		const existingUser = await db.query.users.findFirst({
@@ -49,6 +55,6 @@ export const actions = {
 		const session = await createSession(sessionToken, existingUser.id);
 		setSessionTokenCookie(event, sessionToken, session.expiresAt);
 
-		return redirect(302, existingUser.boarded ? '/' : '/onboarding');
+		return { form, status: 200 };
 	}
 } satisfies Actions;

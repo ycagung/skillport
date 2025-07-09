@@ -64,23 +64,30 @@
 				<!-- <div class="">
 					<SuperDebug data={$verifyOTPFormData} />
 				</div> -->
-				<div class="flex flex-col items-center justify-center space-y-1 text-center">
+				<div
+					class="flex flex-col items-center justify-center space-y-1 text-center"
+				>
 					<p class="text-lg font-bold">Selamat datang di SkillPort! 👋</p>
 					{#if !otpSent}
 						<p class="text-muted-foreground max-w-[275px] text-sm">
-							Kami membutuhkan verifikasi email anda. <br />
+							Kami membutuhkan verifikasi email kamu. <br />
 							Mohon klik
 							<span class="text-foreground font-bold">"Kirimkan kode"</span>
 							untuk mengirimkan kode ke alamat email berikut.
 						</p>
 					{:else}
 						<p class="text-muted-foreground max-w-[275px] text-sm">
-							Mohon periksa email anda dan masukkan kode OTP yang anda terima.
+							Cek email kamu, ya (Cek spam folder juga) dan masukkan kode OTP
+							yang kamu terima.
 						</p>
 					{/if}
 				</div>
 				{#if !otpSent}
-					<form method="POST" use:askOTPFormEnhance class="flex w-full flex-col items-center gap-4">
+					<form
+						method="POST"
+						use:askOTPFormEnhance
+						class="flex w-full flex-col items-center gap-4"
+					>
 						<FormInput
 							form={askOTPForm}
 							name="email"
@@ -106,7 +113,11 @@
 						<Form.Field form={verifyOTPForm} name="otp">
 							<Form.Control>
 								{#snippet children({ props })}
-									<InputOTP.Root maxlength={6} name="otp" bind:value={$verifyOTPFormData.otp}>
+									<InputOTP.Root
+										maxlength={6}
+										name="otp"
+										bind:value={$verifyOTPFormData.otp}
+									>
 										{#snippet children({ cells })}
 											<InputOTP.Group>
 												{#each cells.slice(0, 3) as cell (cell)}
@@ -126,8 +137,10 @@
 							<Form.FieldErrors />
 						</Form.Field>
 
-						<Form.Button formaction="?/verifyCode" type="submit" class="h-fit px-6 py-4 font-bold"
-							>Verifikasi OTP ✅</Form.Button
+						<Form.Button
+							formaction="?/verifyCode"
+							type="submit"
+							class="h-fit px-6 py-4 font-bold">Verifikasi OTP ✅</Form.Button
 						>
 					</form>
 				{/if}
