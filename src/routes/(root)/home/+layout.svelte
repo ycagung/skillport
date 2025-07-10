@@ -9,19 +9,24 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { ScrollArea } from '$lib/components/ui/scroll-area';
 	import type { Component } from 'svelte';
+	import { convertToBoolean } from '$lib/utils.js';
+	import { browser } from '$app/environment';
 
 	let { data, children } = $props();
 
 	let alerts = $state<
 		{
+			id: string;
 			variant: 'default' | 'destructive';
 			icon: Component<IconProps, {}, ''>;
 			condition: boolean;
 			state: boolean;
 			content: string;
+			element: HTMLDivElement | null;
 		}[]
 	>([
 		{
+			id: 'email-verification-warning',
 			variant: 'destructive',
 			icon: AlertCircle,
 			condition: !data.user.verifiedEmail,
@@ -32,18 +37,22 @@
 								href="/onboarding/email-verification"
 								class="text-foreground h-fit px-0 py-0 font-bold">sini</Button
 								> untuk verifikasi.
-								</p>`
+								</p>`,
+			element: null
 		},
 		{
+			id: 'update-1',
 			variant: 'default',
 			icon: AlertCircle,
 			condition: true,
-			state: true,
+			state:
+				browser && localStorage.getItem('update-1') === null ? true : false,
 			content: `<p class='text-muted-foreground'>
 								<span class='text-foreground font-bold'>[FITUR BARU]</span> 
 								Silakan klik <span class='text-foreground font-semibold'>Profil Saya</span> 
 								untuk melihat, atau merubah profil, pendidikan, pengalaman, dan skillmu
-								</p>`
+								</p>`,
+			element: null
 		}
 	]);
 	let inset = $state<HTMLElement | null>(null);
@@ -52,7 +61,12 @@
 	$inspect(height);
 
 	$effect(() => {
-		height = inset ? inset?.offsetHeight - 64 : 0;
+		const alertHeight: number = alerts.reduce(
+			(ac, al) => ac + (al.element?.offsetHeight || 0),
+			0
+		);
+		height = inset ? inset?.offsetHeight - 64 - alertHeight : 0;
+		console.log(height);
 	});
 </script>
 
@@ -61,7 +75,7 @@
 	<Sidebar.Inset bind:ref={inset}>
 		{#each alerts as alert, i}
 			{#if alert.condition && alert.state}
-				<div class="p-2">
+				<div class="p-2" bind:this={alert.element}>
 					<Alert.Root variant={alert.variant}>
 						<alert.icon />
 						<Alert.Title>
@@ -71,7 +85,10 @@
 								<Button
 									variant="ghost"
 									class="h-fit p-0"
-									onclick={() => (alerts[i].state = false)}><X /></Button
+									onclick={() => {
+										alerts[i].state = false;
+										localStorage.setItem(alert.id, '0');
+									}}><X /></Button
 								>
 							</div>
 						</Alert.Title>

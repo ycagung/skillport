@@ -26,7 +26,10 @@ export const users = pgTable('users', {
 	dob: date('date_of_birth'),
 	title: text('title'),
 	bio: text('bio'),
-	roleId: char('role_id', { length: 1 }).references(() => userRoles.id),
+	roleId: char('role_id', { length: 1 })
+		.references(() => userRoles.id)
+		.notNull()
+		.default('u'),
 	createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
 	verifiedEmail: boolean('verified_email').default(false),
 	boarded: boolean('boarded').default(false),

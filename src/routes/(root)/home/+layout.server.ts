@@ -11,6 +11,9 @@ export const load = (async ({ locals }) => {
 				avatar: true,
 				boarded: true,
 				verifiedEmail: true
+			},
+			with: {
+				role: { columns: { id: true, title: true } }
 			}
 		}))!
 	};

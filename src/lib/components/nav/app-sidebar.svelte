@@ -4,7 +4,7 @@
 	import NavSecondary from './nav-secondary.svelte';
 	import NavUser from './nav-user.svelte';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
-	import type { ComponentProps } from 'svelte';
+	import type { Component, ComponentProps } from 'svelte';
 	import {
 		BriefcaseBusiness,
 		ChartPieIcon,
@@ -12,8 +12,10 @@
 		LifeBuoyIcon,
 		MapIcon,
 		SendIcon,
+		ShieldUser,
 		SquareTerminalIcon,
-		User
+		User,
+		type IconProps
 	} from '@lucide/svelte';
 
 	let {
@@ -25,10 +27,29 @@
 			name: string | null;
 			email: string;
 			avatar: string | null;
+			role: { id: string; title: string };
 		};
 	} = $props();
 
-	const data = {
+	const data: {
+		navMain: {
+			title: string;
+			url?: string;
+			icon: Component<IconProps, {}, ''>;
+			role?: boolean;
+			items: { title: string; url: string; role?: boolean }[];
+		}[];
+		navSecondary: {
+			title: string;
+			url: string;
+			icon: Component<IconProps, {}, ''>;
+		}[];
+		projects: {
+			name: string;
+			url: string;
+			icon: Component<IconProps, {}, ''>;
+		}[];
+	} = {
 		navMain: [
 			// {
 			// 	title: 'Screening',
@@ -67,20 +88,36 @@
 			// },
 			{
 				title: 'Profil Saya',
-				url: '/home/profile',
+				url: '/home/my',
 				icon: User,
+				role: true,
 				items: [
 					{
+						title: 'Saya',
+						url: '/home/my/profile'
+					},
+					{
 						title: 'Pendidikan',
-						url: '/home/profile#educations'
+						url: '/home/my/profile#educations'
 					},
 					{
 						title: 'Pengalaman',
-						url: '/home/profile#experiences'
+						url: '/home/my/profile#experiences'
 					},
 					{
 						title: 'Skill',
-						url: '/home/profile#skills'
+						url: '/home/my/profile#skills'
+					}
+				]
+			},
+			{
+				title: 'Admin',
+				icon: ShieldUser,
+				role: user.role.id === 'a',
+				items: [
+					{
+						title: 'Pengguna',
+						url: '/home/admin/users'
 					}
 				]
 			}

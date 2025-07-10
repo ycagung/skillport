@@ -72,7 +72,7 @@
 				class="capitalize"
 				onclick={() =>
 					goto(
-						`/home/profile${value !== 'profile' ? '#' : ''}${value !== 'profile' ? value : ''}`
+						`/home/my/profile${value !== 'profile' ? '#' : ''}${value !== 'profile' ? value : ''}`
 					)}>{title}</Tabs.Trigger
 			>
 		{/each}

@@ -17,51 +17,8 @@ import {
 } from '$lib/server/db/schema/tables';
 import { eq } from 'drizzle-orm';
 
-export const load = (async ({ locals }) => {
-	const user = await db.query.users.findFirst({
-		where: (users, { eq }) => eq(users.id, locals.user!.id),
-		columns: {
-			id: true,
-			email: true,
-			name: true,
-			dob: true,
-			bio: true,
-			title: true,
-			phoneNumber: true,
-			verifiedEmail: true
-		},
-		with: {
-			educations: {
-				columns: {
-					id: true,
-					educationId: true,
-					major: true,
-					institution: true,
-					startYear: true,
-					endYear: true,
-					notes: true
-				}
-			},
-			experiences: {
-				columns: {
-					id: true,
-					position: true,
-					company: true,
-					startDate: true,
-					endDate: true,
-					description: true
-				}
-			},
-			skills: {
-				columns: {
-					id: true,
-					skillId: true,
-					level: true,
-					experienceYears: true
-				}
-			}
-		}
-	});
+export const load = (async ({ locals, parent }) => {
+	const { user } = await parent();
 
 	return {
 		skills: await db.query.skillsMaster.findMany({
@@ -70,7 +27,6 @@ export const load = (async ({ locals }) => {
 		educations: await db.query.educationsMaster.findMany({
 			columns: { id: true, title: true, major: true }
 		}),
-		user,
 		profileForm: await superValidate(user, zod4(profileSchema)),
 		profileEducationsForm: await superValidate(
 			{ userId: locals.user!.id, educations: [...user!.educations] },
