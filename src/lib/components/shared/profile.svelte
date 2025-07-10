@@ -121,7 +121,7 @@
 			{/each}
 		</div>
 		<div class="flex flex-col items-start gap-4 lg:w-[500px]">
-			<p class="w-full text-center text-2xl font-bold">Pendidikan</p>
+			<p class="w-full text-center text-2xl font-bold">Pengalaman Kerja</p>
 			{#each user.experiences as exp}
 				<div class="flex items-start justify-start gap-2">
 					<div class="flex h-full flex-col items-center gap-2 pt-2">
