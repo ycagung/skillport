@@ -11,7 +11,8 @@ export const load = (async () => {
 				phoneNumber: true,
 				verifiedEmail: true,
 				boarded: true
-			}
+			},
+			orderBy: (users, { asc }) => asc(users.createdAt)
 		})
 	};
 }) satisfies PageServerLoad;

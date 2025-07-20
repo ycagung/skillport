@@ -3,6 +3,8 @@
 	import { columns } from '$lib/components/tables/users/columns';
 
 	let { data } = $props();
+
+	console.log(data.users);
 </script>
 
 <DataTable title="Users" data={data.users} {columns} />
